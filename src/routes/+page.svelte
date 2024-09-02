@@ -1,28 +1,16 @@
-<script>
-	import Question from "../Question.svelte";
+<script lang="ts">
+	import { addQuestion, getQuestions, submitVote } from "$lib/lib";
+	import { onMount } from "svelte";
+	import QuestionEl from "../QuestionEl.svelte";
+	import type { Question } from "$lib/types";
 
-	async function getQuestions() {
-		const questions = await fetch("/questions")
-			.then(res => res.json())
+	let userId = "";
+	let questions: Question[] = [];
 
-		return questions
-	}
-
-	const questions = getQuestions()
-
-	async function addQuestion() {
-		const question = prompt("Question?")
-		await fetch("/questions", {
-			method: "POST",
-			body: JSON.stringify({
-				question
-			}),
-			headers: {
-				'Content-Type': 'application/json'
-			}
-		})
-		location.reload()
-	}
+	onMount(async () => {
+		userId = localStorage.getItem("user") || "";
+		questions = await getQuestions();
+	});
 </script>
 
 <svelte:head>
@@ -32,11 +20,24 @@
 
 <section>
 	<h1>Scientific Consensus</h1>
-	{#await questions then qs}
-		{#each qs as question}
-			<Question {question} />
-		{/each}
-	{/await}
+	user id:<input
+		bind:value={userId}
+		on:change={() => {
+			localStorage.setItem("user", userId);
+		}}
+	/>
+	{#each questions as question}
+		<QuestionEl
+			{question}
+			on:vote={async (e) => {
+				questions = await submitVote({
+					userId,
+					qId: question.id,
+					vote: e.detail.vote,
+				});
+			}}
+		/>
+	{/each}
 	<button class="add" on:click={addQuestion}>+ add question</button>
 </section>
 
