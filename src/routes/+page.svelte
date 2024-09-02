@@ -20,12 +20,7 @@
 
 <section>
 	<h1>Scientific Consensus</h1>
-	user id:<input
-		bind:value={userId}
-		on:change={() => {
-			localStorage.setItem("user", userId);
-		}}
-	/>
+	<button>log in</button>
 	{#each questions as question}
 		<QuestionEl
 			{question}
@@ -44,6 +39,7 @@
 <style>
 	h1 {
 		text-decoration: underline;
+		margin-bottom: 0px;
 	}
 
 	.add {
