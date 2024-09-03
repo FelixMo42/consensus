@@ -14,7 +14,7 @@
 		questions = await getQuestions();
 	});
 
-	$: console.log(page)
+	page.subscribe(console.log)
 </script>
 
 <svelte:head>
