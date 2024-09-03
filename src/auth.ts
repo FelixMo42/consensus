@@ -14,7 +14,7 @@ export const { handle, signIn, signOut } = SvelteKitAuth({
         clientSecret: ORCID_CLIENT_SECRET,
         token: "https://orcid.org/oauth/token",
         userinfo: {
-            userinfo: "https://orcid.org/oauth/userinfo",
+            url: "https://orcid.org/oauth/userinfo",
             async request({ tokens, provider }) {
                 return await fetch(provider.userinfo?.url as URL, {
                     headers: {
