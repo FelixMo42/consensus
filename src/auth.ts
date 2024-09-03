@@ -10,6 +10,7 @@ export const { handle, signIn, signOut } = SvelteKitAuth({
         name: "ORCID",
         type: "oidc",
         issuer: "https://orcid.org/oauth",
+        wellKnown: "https://orcid.org/.well-known/openid-configuration",
         clientId: ORCID_CLIENT_ID,
         clientSecret: ORCID_CLIENT_SECRET,
         profile(profile) {
