@@ -11,7 +11,7 @@
 	<meta name="description" content="sci-con" />
 </svelte:head>
 
-<section>
+<section class="main">
 	<h1>Scientific Consensus</h1>
 
 	{#if !isAuth}
@@ -38,11 +38,6 @@
 </section>
 
 <style>
-	h1 {
-		text-decoration: underline;
-		margin-bottom: 0px;
-	}
-
 	.signInButton {
 		display: flex;
 		border: 1px solid gray;

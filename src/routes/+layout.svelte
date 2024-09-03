@@ -19,9 +19,9 @@
 		flex: 1;
 		display: flex;
 		flex-direction: column;
-		padding: 1rem;
 		max-width: 800px;
 		margin: 0 auto;
 		box-sizing: border-box;
+		padding-bottom: 50px;
 	}
 </style>
