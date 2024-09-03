@@ -1,19 +1,9 @@
 <script lang="ts">
 	import { page } from "$app/stores";
-	import {
-		addQuestion,
-		getQuestions,
-		submitVote,
-	} from "$lib/api";
-	import { onMount } from "svelte";
-	import QuestionEl from "../QuestionEl.svelte";
-	import type { Question } from "$lib/types";
+    import QuestionsView from "../parts/QuestionsView.svelte";
+	import { dev } from '$app/environment';
 
-	let questions: Question[] = [];
-
-	onMount(async () => {
-		questions = await getQuestions();
-	});
+	const isAuth = dev ? true : $page.data.session
 </script>
 
 <svelte:head>
@@ -24,7 +14,7 @@
 <section>
 	<h1>Scientific Consensus</h1>
 
-	{#if !$page.data.session}
+	{#if !isAuth}
 		<form method="POST" action="/signin" class="signInForm">
 			<input type="hidden" name="providerId" value="orcid" />
 			<button class="signInButton">
@@ -36,18 +26,8 @@
 			</button>
 		</form>
 	{:else}
-		{#each questions as question}
-			<QuestionEl
-				{question}
-				on:vote={async (e) => {
-					questions = await submitVote({
-						qId: question.id,
-						vote: e.detail.vote,
-					});
-				}}
-			/>
-		{/each}
-		<button class="add" on:click={addQuestion}>+ add question</button>
+		<QuestionsView></QuestionsView>	
+
 		<form method="POST" action="/signout" class="signInForm">
 			<input type="hidden" name="providerId" value="orcid" />
 			<button class="signInButton">
@@ -58,6 +38,11 @@
 </section>
 
 <style>
+	h1 {
+		text-decoration: underline;
+		margin-bottom: 0px;
+	}
+
 	.signInButton {
 		display: flex;
 		border: 1px solid gray;
@@ -72,26 +57,5 @@
 
 	.signInButton img {
 		margin-right: 10px;
-	}
-
-	h1 {
-		text-decoration: underline;
-		margin-bottom: 0px;
-	}
-
-	.add {
-		border: none;
-		background: none;
-		color: white;
-		font-size: 1.25em;
-		padding: 10px;
-		display: block;
-		width: 100%;
-		text-align: center;
-		cursor: pointer;
-	}
-
-	.add:hover {
-		text-decoration: underline;
-	}
+	}	
 </style>

@@ -1,9 +1,17 @@
 import { REDIS_URL } from '$env/static/private';
 import { createClient, type RedisClientType } from 'redis';
+import { dev } from '$app/environment';
 
 const client: {
     client?: RedisClientType
 } = {}
+
+export async function getUserId(locals: App.Locals): Promise<string | undefined> {
+    if (dev) return "0009-0005-9178-8538"
+
+    const session = await locals.auth()
+    return session?.user?.email ?? undefined
+}
 
 export async function getRedisClient(): Promise<RedisClientType> {
     if (!client.client) {
