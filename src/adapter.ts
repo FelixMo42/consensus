@@ -32,7 +32,7 @@ export function RedisAdapter(): Adapter {
         const client = await getRedisClient()
         const raw = await client.get(key) as string
 
-        if (raw.startsWith("{")) {
+        if (typeof raw === "string" && raw.startsWith("{")) {
             return hydrate(raw)
         } else {
             return raw
