@@ -19,8 +19,13 @@
 		flex: 1;
 		display: flex;
 		flex-direction: column;
+		
 		max-width: 800px;
+		max-width: 100vw;
 		width: 800px;
+
+		padding: 10px;
+
 		margin: 0 auto;
 		box-sizing: border-box;
 		padding-bottom: 50px;
