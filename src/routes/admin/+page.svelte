@@ -4,9 +4,9 @@
 </svelte:head>
 
 <script lang="ts">
-    import { onMount } from "svelte";
-    import { addQuestion, getQuestions, removeQuestion } from "$lib/api";
-	import { type Question } from "$lib/types";
+    import { onMount } from "svelte"
+    import { addQuestion, getQuestions, removeQuestion } from "$lib/api"
+	import { type Question } from "$lib/types"
 
 	let questions: Question[] = []
 	let newQuestion = ""

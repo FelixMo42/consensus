@@ -1,8 +1,8 @@
 <script lang="ts">
-    import type { Question } from "$lib/types";
-    import { createEventDispatcher } from "svelte";
+    import type { Question } from "$lib/types"
+    import { createEventDispatcher } from "svelte"
 
-    export let question: Question;
+    export let question: Question
 
 	const dispatch = createEventDispatcher<{
 		vote: { vote: string }

@@ -1,6 +1,6 @@
-import { ORCID_CLIENT_ID, ORCID_CLIENT_SECRET, REDIS_URL } from '$env/static/private';
+import { ORCID_CLIENT_ID, ORCID_CLIENT_SECRET } from '$env/static/private'
 import { SvelteKitAuth } from "@auth/sveltekit"
-import { RedisAdapter } from './adapter';
+import { RedisAdapter } from './adapter'
 
 export const { handle, signIn, signOut } = SvelteKitAuth({
     providers: [{

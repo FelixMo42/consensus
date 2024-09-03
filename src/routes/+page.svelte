@@ -4,9 +4,9 @@
 </svelte:head>
 
 <script lang="ts">
-	import { page } from "$app/stores";
-    import QuestionsView from "../parts/QuestionsView.svelte";
-	import { dev } from '$app/environment';
+	import { page } from "$app/stores"
+    import QuestionsView from "../parts/QuestionsView.svelte"
+	import { dev } from '$app/environment'
 
 	const isAuth = dev ? true : $page.data.session
 </script>

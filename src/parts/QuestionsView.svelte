@@ -1,14 +1,14 @@
 <script lang="ts">
-	import { getQuestions, submitVote } from "$lib/api";
-	import { onMount } from "svelte";
-	import QuestionEl from "./QuestionView.svelte";
-	import type { Question } from "$lib/types";
+	import { getQuestions, submitVote } from "$lib/api"
+	import { onMount } from "svelte"
+	import QuestionEl from "./QuestionView.svelte"
+	import type { Question } from "$lib/types"
 
-	let questions: Question[] = [];
+	let questions: Question[] = []
 
 	onMount(async () => {
-		questions = await getQuestions();
-	});
+		questions = await getQuestions()
+	})
 </script>
 
 <div>
@@ -19,7 +19,7 @@
                 questions = await submitVote(
                     question.id,
                     e.detail.vote,
-                );
+                )
             }}
         />
     {/each}

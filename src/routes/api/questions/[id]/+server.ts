@@ -1,14 +1,11 @@
-import { getRedisClient, getUserId, questions } from "$lib/db";
-import { fail, json, type ServerLoadEvent } from "@sveltejs/kit";
+import { getRedisClient, getUserId, isAdmin, questions } from "$lib/db"
+import { error, json, type ServerLoadEvent } from "@sveltejs/kit"
 
 export async function DELETE({ params, locals }: ServerLoadEvent) {
-    console.log("HI")
-    const questionId = params.id
-    const userId = await getUserId(locals)
-
-    if (!userId) return fail(401)
-
     const client = await getRedisClient()
+
+    const questionId = params.id
+    const userId = await getUserId(client, locals, { admin: true })
 
     await client.del([
         `question:${questionId}`,
