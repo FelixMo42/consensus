@@ -1,7 +1,15 @@
-import type { Question } from "./types"
+import type { Question, User } from "./types"
 
-export function getUserInfo() {
-    return f("/api/user")
+export function getUsers() {
+    return f<User[]>("/api/user")
+}
+
+export function removeUsers(userId: string) {
+    return f<User[]>(`/api/user/${userId}`, "DELETE")
+}
+
+export function setUserRole(userId: string, role: string) {
+    return f<User[]>(`/api/user/${userId}`, { role })
 }
 
 export function getQuestions(): Promise<Question[]> {

@@ -20,6 +20,10 @@ body {
 	background-color: var(--color-bg);
 }
 
+a {
+	color: lightblue;
+}
+
 h1 {
 	font-size: 2rem;
 	text-align: center;

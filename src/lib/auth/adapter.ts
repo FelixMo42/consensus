@@ -12,7 +12,7 @@ const accountByUserIdPrefix = "user:account:by-user-id:"
 const sessionKeyPrefix = "user:session:"
 const sessionByUserIdKeyPrefix = "user:session:by-user-id:"
 const orcidKeyPrefix = "user:orcid:"
-const userKeyPrefix = "user:"
+const userKeyPrefix = "user:data:"
 const verificationTokenKeyPrefix = "user:token:"
 
 export function hydrate(json: string) {

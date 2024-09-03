@@ -6,3 +6,10 @@ export interface Question {
         [key: string]: number
     }
 }
+
+export interface User {
+    id: string
+    firstName: string
+    lastName: string
+    role: string
+}

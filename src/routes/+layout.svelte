@@ -20,6 +20,7 @@
 		display: flex;
 		flex-direction: column;
 		max-width: 800px;
+		width: 800px;
 		margin: 0 auto;
 		box-sizing: border-box;
 		padding-bottom: 50px;

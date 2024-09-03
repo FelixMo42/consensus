@@ -75,6 +75,18 @@ export function questions(client: RedisClientType, userId?: string) {
     }))
 }
 
+export function users(client: RedisClientType) {
+    return list(client, "user:user:*", async (id, name) => {
+        const raw = JSON.parse(name)
+
+        return {
+            id: raw.email,
+            firstName: raw.givenName,
+            lastName: raw.familyName,
+            role: await client.get(`user:role:${raw.email}`) ?? 'pending'
+        }
+    })
+}
 
 export function getNewId(pre = "") {
     const alphabet = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
