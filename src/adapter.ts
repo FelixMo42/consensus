@@ -15,10 +15,6 @@ const orcidKeyPrefix = "user:orcid:"
 const userKeyPrefix = "user:"
 const verificationTokenKeyPrefix = "user:token:"
 
-interface ORCIDAdapterUser extends AdapterUser {
-    sub?: string
-}
-
 export function hydrate(json: string) {
     return Object.entries(JSON.parse(json)).reduce((acc, [key, val]) => {
         acc[key] = isDate(val) ? new Date(val as string) : val
@@ -72,11 +68,11 @@ export function RedisAdapter(): Adapter {
 
     const setUser = async (
         id: string,
-        user: ORCIDAdapterUser
-    ): Promise<ORCIDAdapterUser> => {
+        user: AdapterUser
+    ): Promise<AdapterUser> => {
         const client = await getRedisClient()
         await setObjectAsJson(userKeyPrefix + id, user)
-        await client.set(`${orcidKeyPrefix}${user.sub}`, id)
+        await client.set(`${orcidKeyPrefix}${user.email}`, id)
         return user
     }
 
@@ -108,7 +104,7 @@ export function RedisAdapter(): Adapter {
         async updateUser(updates) {
             const userId = updates.id as string
             const user = await getUser(userId)
-            return await setUser(userId, { ...(user as ORCIDAdapterUser), ...updates })
+            return await setUser(userId, { ...(user as AdapterUser), ...updates })
         },
         async linkAccount(account) {
             const id = `${account.provider}:${account.providerAccountId}`

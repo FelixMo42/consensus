@@ -13,8 +13,9 @@ export const { handle, signIn, signOut } = SvelteKitAuth({
         clientSecret: ORCID_CLIENT_SECRET,
         profile(profile) {
             return {
-                test: "hi",
-                ...profile
+                email: profile.sub,
+                givenName: profile.given_name,
+                familyName: profile.family_name
             }
         }
     }],
