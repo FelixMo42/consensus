@@ -1,4 +1,4 @@
-import { json } from '@sveltejs/kit';
+import { json, type ServerLoadEvent } from '@sveltejs/kit';
 import { getNewId } from '$lib/lib';
 import { getRedisClient, questions } from '$lib/db';
 
@@ -7,7 +7,7 @@ export async function GET() {
     return json(await questions(client));
 }
 
-export async function POST({ request }) {
+export async function POST({ request }: ServerLoadEvent) {
     const client = await getRedisClient()
 
     const { question } = await request.json()

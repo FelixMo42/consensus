@@ -1,7 +1,7 @@
 import { getRedisClient, questions } from "$lib/db";
-import { json } from "@sveltejs/kit";
+import { json, type ServerLoadEvent } from "@sveltejs/kit";
 
-export async function POST({ params, request }) {
+export async function POST({ params, request }: ServerLoadEvent) {
     const client = await getRedisClient()
 
     const questionId = params.id
