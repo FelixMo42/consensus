@@ -4,45 +4,38 @@ import {
     type AdapterUser,
     type AdapterAccount,
     type AdapterSession,
-    type VerificationToken,
     isDate,
 } from "@auth/core/adapters"
-import type { RedisClientType } from "redis"
 
-export const options = {
-    baseKeyPrefix: "",
-    accountKeyPrefix: "user:account:",
-    accountByUserIdPrefix: "user:account:by-user-id:",
-    emailKeyPrefix: "user:email:",
-    sessionKeyPrefix: "user:session:",
-    sessionByUserIdKeyPrefix: "user:session:by-user-id:",
-    userKeyPrefix: "user:",
-    verificationTokenKeyPrefix: "user:token:",
-}
+const accountKeyPrefix = "user:account:"
+const accountByUserIdPrefix = "user:account:by-user-id:"
+const sessionKeyPrefix = "user:session:"
+const sessionByUserIdKeyPrefix = "user:session:by-user-id:"
+const userKeyPrefix = "user:"
+const verificationTokenKeyPrefix = "user:token:"
 
-export function hydrateDates(json: object) {
-    return Object.entries(json).reduce((acc, [key, val]) => {
+export function hydrate(json: string) {
+    return Object.entries(JSON.parse(json)).reduce((acc, [key, val]) => {
         acc[key] = isDate(val) ? new Date(val as string) : val
         return acc
     }, {} as any)
 }
 
 export function RedisAdapter(): Adapter {
-    const { baseKeyPrefix } = options
-    const accountKeyPrefix = baseKeyPrefix + options.accountKeyPrefix
-    const accountByUserIdPrefix =
-        baseKeyPrefix + options.accountByUserIdPrefix
-    const emailKeyPrefix = baseKeyPrefix + options.emailKeyPrefix
-    const sessionKeyPrefix = baseKeyPrefix + options.sessionKeyPrefix
-    const sessionByUserIdKeyPrefix =
-        baseKeyPrefix + options.sessionByUserIdKeyPrefix
-    const userKeyPrefix = baseKeyPrefix + options.userKeyPrefix
-    const verificationTokenKeyPrefix =
-        baseKeyPrefix + options.verificationTokenKeyPrefix
-
     const setObjectAsJson = async (key: string, obj: any) => {
         const client = await getRedisClient()
         return client.set(key, JSON.stringify(obj))
+    }
+
+    const get = async (key: string) => {
+        const client = await getRedisClient()
+        const raw = await client.get(key) as string
+
+        if (raw.startsWith("{")) {
+            return hydrate(raw)
+        } else {
+            return raw
+        }
     }
 
     const setAccount = async (id: string, account: AdapterAccount) => {
@@ -54,10 +47,7 @@ export function RedisAdapter(): Adapter {
     }
 
     const getAccount = async (id: string) => {
-        const client = await getRedisClient()
-        const account = await client.get(accountKeyPrefix + id)
-        if (!account) return null
-        return hydrateDates(account)
+        return await get(accountKeyPrefix + id)
     }
 
     const setSession = async (
@@ -72,27 +62,19 @@ export function RedisAdapter(): Adapter {
     }
 
     const getSession = async (id: string) => {
-        const client = await getRedisClient()
-        const session = await client.get(sessionKeyPrefix + id)
-        if (!session) return null
-        return hydrateDates(session)
+        return get(sessionKeyPrefix + id)
     }
 
     const setUser = async (
         id: string,
         user: AdapterUser
     ): Promise<AdapterUser> => {
-        const client = await getRedisClient()
         await setObjectAsJson(userKeyPrefix + id, user)
-        await client.set(`${emailKeyPrefix}${user.email as string}`, id)
         return user
     }
 
     const getUser = async (id: string) => {
-        const client = await getRedisClient()
-        const user = await client.get(userKeyPrefix + id)
-        if (!user) return null
-        return hydrateDates(user)
+        return get(userKeyPrefix + id)
     }
 
     return {
@@ -103,14 +85,6 @@ export function RedisAdapter(): Adapter {
             return await setUser(id, { ...user, id })
         },
         getUser,
-        async getUserByEmail(email) {
-            const client = await getRedisClient()
-            const userId = await client.get(emailKeyPrefix + email)
-            if (!userId) {
-                return null
-            }
-            return await getUser(userId)
-        },
         async getUserByAccount(account) {
             const dbAccount = await getAccount(
                 `${account.provider}:${account.providerAccountId}`
@@ -163,12 +137,10 @@ export function RedisAdapter(): Adapter {
                 ":" +
                 verificationToken.token
 
-            const token = await client.get(tokenKey)
-            if (!token) return null
-
+            const token = await get(tokenKey)
             await client.del(tokenKey)
-            return hydrateDates(token)
-            // return reviveFromJson(token)
+
+            return token
         },
         async unlinkAccount(account) {
             const client = await getRedisClient()
@@ -192,7 +164,6 @@ export function RedisAdapter(): Adapter {
             const sessionKey = await client.get(sessionByUserIdKey)
             await client.del([
                 userKeyPrefix + userId,
-                `${emailKeyPrefix}${user.email as string}`,
                 accountKey as string,
                 accountByUserKey,
                 sessionKey as string,
