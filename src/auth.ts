@@ -9,6 +9,10 @@ export const { handle, signIn, signOut } = SvelteKitAuth({
         issuer: "https://orcid.org/",
         clientId: ORCID_CLIENT_ID,
         clientSecret: ORCID_CLIENT_SECRET,
+        profile(response) {
+            return response
+        }
+        
     }],
     trustHost: true,
 })

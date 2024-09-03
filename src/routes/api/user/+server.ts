@@ -1,6 +1,6 @@
-import { json } from "@sveltejs/kit"
+import { json, type ServerLoadEvent } from "@sveltejs/kit"
 
-export async function GET({ locals }) {
+export async function GET({ locals }: ServerLoadEvent) {
     const session = await locals.auth()
 
     // if (!session?.user?.userId) {
