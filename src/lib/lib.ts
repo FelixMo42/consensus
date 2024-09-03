@@ -1,7 +1,12 @@
 import type { Question } from "./types";
 
 export async function getUserInfo() {
-    return fetch("https://orcid.org/oauth/userinfo").then(res => res.json())
+    return fetch("https://orcid.org/oauth/userinfo", {
+        credentials: 'include',
+        // headers: {
+        //     'Authorization': `Bearer`
+        // }
+    }).then(res => res.json())
 }
 
 export async function getQuestions(): Promise<Question[]> {
