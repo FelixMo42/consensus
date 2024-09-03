@@ -11,8 +11,6 @@
 
 	let questions: Question[] = [];
 
-	$: console.log(questions)
-
 	onMount(async () => {
 		questions = await getQuestions();
 	});
