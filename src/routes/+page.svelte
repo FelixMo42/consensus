@@ -26,6 +26,7 @@
 		const info = await getUserInfo()
 		console.log(info)
 	}}>get my info</button>
+	{JSON.stringify(page)}
 	<SignOut>
 		<div slot="submitButton" class="buttonPrimary">Sign out</div>
 	</SignOut>
