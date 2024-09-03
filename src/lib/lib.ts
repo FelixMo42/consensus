@@ -3,9 +3,9 @@ import type { Question } from "./types";
 export async function getUserInfo() {
     return fetch("https://orcid.org/oauth/userinfo", {
         credentials: 'include',
-        // headers: {
-        //     'Authorization': `Bearer`
-        // }
+        headers: {
+            'Authorization': `Bearer`
+        }
     }).then(res => res.json())
 }
 
