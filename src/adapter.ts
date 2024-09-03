@@ -11,8 +11,13 @@ const accountKeyPrefix = "user:account:"
 const accountByUserIdPrefix = "user:account:by-user-id:"
 const sessionKeyPrefix = "user:session:"
 const sessionByUserIdKeyPrefix = "user:session:by-user-id:"
+const orcidKeyPrefix = "user:orcid:"
 const userKeyPrefix = "user:"
 const verificationTokenKeyPrefix = "user:token:"
+
+interface ORCIDAdapterUser extends AdapterUser {
+    sub?: string
+}
 
 export function hydrate(json: string) {
     return Object.entries(JSON.parse(json)).reduce((acc, [key, val]) => {
@@ -67,9 +72,11 @@ export function RedisAdapter(): Adapter {
 
     const setUser = async (
         id: string,
-        user: AdapterUser
-    ): Promise<AdapterUser> => {
+        user: ORCIDAdapterUser
+    ): Promise<ORCIDAdapterUser> => {
+        const client = await getRedisClient()
         await setObjectAsJson(userKeyPrefix + id, user)
+        await client.set(`${orcidKeyPrefix}${user.sub}`, id)
         return user
     }
 
@@ -85,6 +92,12 @@ export function RedisAdapter(): Adapter {
             return await setUser(id, { ...user, id })
         },
         getUser,
+        async getUserByEmail(email) {
+            const client = await getRedisClient()
+            const userId = await client.get(orcidKeyPrefix + email)
+            if (!userId) return null
+            return await getUser(userId)
+        },
         async getUserByAccount(account) {
             const dbAccount = await getAccount(
                 `${account.provider}:${account.providerAccountId}`
@@ -95,7 +108,7 @@ export function RedisAdapter(): Adapter {
         async updateUser(updates) {
             const userId = updates.id as string
             const user = await getUser(userId)
-            return await setUser(userId, { ...(user as AdapterUser), ...updates })
+            return await setUser(userId, { ...(user as ORCIDAdapterUser), ...updates })
         },
         async linkAccount(account) {
             const id = `${account.provider}:${account.providerAccountId}`
@@ -165,6 +178,7 @@ export function RedisAdapter(): Adapter {
             await client.del([
                 userKeyPrefix + userId,
                 accountKey as string,
+                `${orcidKeyPrefix}${user.email as string}`,
                 accountByUserKey,
                 sessionKey as string,
                 sessionByUserIdKey
