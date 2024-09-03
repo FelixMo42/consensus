@@ -1,6 +1,10 @@
 <script lang="ts">
+	import { page } from "$app/stores"
+	import { dev } from '$app/environment'
     import type { Question } from "$lib/types"
     import { createEventDispatcher } from "svelte"
+
+	const isAuth = dev ? true : $page.data.session
 
     export let question: Question
 
@@ -65,18 +69,20 @@
 			{/if}
 		{/each}
 	</div>
-	<div class="row">
-		<span class="button-label">My vote:</span>
-		{#each voteButtons as button}
-			<button
-				class="
-					{button.classes}
-					{question.myVote === button.vote ? "my-vote" : ""}
-				"
-				on:click={vote(button.vote)}
-			>{button.text}</button>
-		{/each}
-	</div>
+	{#if isAuth}
+		<div class="row">
+			<span class="button-label">My vote:</span>
+			{#each voteButtons as button}
+				<button
+					class="
+						{button.classes}
+						{question.myVote === button.vote ? "my-vote" : ""}
+					"
+					on:click={vote(button.vote)}
+				>{button.text}</button>
+			{/each}
+		</div>
+	{/if}
 </div>
 
 <style>

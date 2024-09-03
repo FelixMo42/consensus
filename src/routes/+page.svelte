@@ -25,9 +25,11 @@
 				Sign in with ORCID
 			</button>
 		</form>
-	{:else}
-		<QuestionsView></QuestionsView>	
-
+	{/if}
+	
+	<QuestionsView />
+	
+	{#if isAuth}
 		<form method="POST" action="/signout" class="authForm">
 			<input type="hidden" name="providerId" value="orcid" />
 			<button class="authButton">
