@@ -1,5 +1,7 @@
 <script lang="ts">
-	import { addQuestion, getQuestions, submitVote } from "$lib/lib";
+	import { SignIn, SignOut } from "@auth/sveltekit/components";
+	import { page } from "$app/stores";
+	import { addQuestion, getQuestions, getUserInfo, submitVote } from "$lib/lib";
 	import { onMount } from "svelte";
 	import QuestionEl from "../QuestionEl.svelte";
 	import type { Question } from "$lib/types";
@@ -18,9 +20,22 @@
 	<meta name="description" content="sci-con" />
 </svelte:head>
 
+{#if $page.data.session}
+	<span class="signedInText">Signed in!</span>
+	<button on:click={async () => {
+		const info = await getUserInfo()
+		console.log(info)
+	}}>get my info</button>
+	<SignOut>
+		<div slot="submitButton" class="buttonPrimary">Sign out</div>
+	</SignOut>
+{:else}
+	<span class="notSignedInText">You are not signed in</span>
+	<SignIn provider="orcid" />
+{/if}
+
 <section>
 	<h1>Scientific Consensus</h1>
-	<button>log in</button>
 	{#each questions as question}
 		<QuestionEl
 			{question}

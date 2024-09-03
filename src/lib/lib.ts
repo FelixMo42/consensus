@@ -1,12 +1,16 @@
 import type { Question } from "./types";
 
+export async function getUserInfo() {
+    return fetch("https://orcid.org/oauth/userinfo").then(res => res.json())
+}
+
 export async function getQuestions(): Promise<Question[]> {
-    return fetch("/questions").then((res) => res.json())
+    return fetch("/api/questions").then((res) => res.json())
 }
 
 export function addQuestion() {
     const question = prompt("Question?");
-    return fetch("/questions", {
+    return fetch("/api/questions", {
         method: "POST",
         body: JSON.stringify({
             question,
@@ -22,7 +26,7 @@ export function submitVote(params: {
     qId: string,
     vote: string
 }): Promise<Question[]> {
-    return fetch(`/questions/${params.qId}/vote`, {
+    return fetch(`/api/questions/${params.qId}/vote`, {
         method: "POST",
         body: JSON.stringify({
             userId: params.userId,
