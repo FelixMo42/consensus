@@ -7,6 +7,8 @@ export async function POST({ params, request, locals }: ServerLoadEvent) {
 
     if (!session?.user?.email) return fail(401)
 
+    console.log(session.user.email)
+
     const questionId = params.id
     const { vote } = await request.json()
     const userId = session?.user?.email

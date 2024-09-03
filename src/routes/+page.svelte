@@ -48,6 +48,12 @@
 			/>
 		{/each}
 		<button class="add" on:click={addQuestion}>+ add question</button>
+		<form method="POST" action="/signout" class="signInForm">
+			<input type="hidden" name="providerId" value="orcid" />
+			<button class="signInButton">
+				Sign out
+			</button>
+		</form>
 	{/if}
 </section>
 
