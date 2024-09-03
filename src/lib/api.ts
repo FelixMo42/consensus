@@ -1,36 +1,43 @@
 import type { Question } from "./types";
 
-export async function getUserInfo() {
-    return fetch("/api/user", {
-        credentials: 'include',
-    }).then(res => res.json())
+export function getUserInfo() {
+    return f("/api/user")
 }
 
-export async function getQuestions(): Promise<Question[]> {
-    return fetch("/api/questions").then((res) => res.json())
+export function getQuestions(): Promise<Question[]> {
+    return f<Question[]>("/api/questions")
 }
 
-export function addQuestion() {
-    const question = prompt("Question?");
-    return fetch("/api/questions", {
-        method: "POST",
-        body: JSON.stringify({
-            question,
-        }),
-        headers: {
-            "Content-Type": "application/json",
-        },
-    }).then(res => res.json());
+export function addQuestion(question: string) {
+    if (question === "") {
+        return alert("Question can not be empty!")
+    }
+
+    return f<Question[]>("/api/questions", { question })
 }
 
-export function submitVote(params: {
-    qId: string,
-    vote: string
-}): Promise<Question[]> {
-    return fetch(`/api/questions/${params.qId}/vote`, {
-        method: "POST",
-        body: JSON.stringify({
-            vote: params.vote
-        })
-    }).then((res) => res.json())
+export function removeQuestion(id: string) {
+    return f<Question[]>(`/api/questions/${id}`, "DELETE")
+}
+
+export function submitVote(id: string, vote: string) {
+    return f<Question[]>(`/api/questions/${id}/vote`, { vote })
+}
+
+async function f<T>(url: string, body?: any): Promise<T> {
+    const response = await fetch(url,
+        typeof body === "string" ? {
+            method: body
+        }
+        : body ? {
+            method: "POST",
+            body: JSON.stringify(body),
+            headers: { "Content-Type": "application/json" },
+        }
+        : {
+            method: "GET"
+        }
+    )
+
+    return response.json()
 }

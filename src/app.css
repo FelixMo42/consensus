@@ -20,26 +20,6 @@ body {
 	background-color: var(--color-bg);
 }
 
-h1,
-h2,
-p {
-	font-weight: 400;
-}
-
-p {
-	line-height: 1.5;
-	font-size: 1.25em;
-}
-
-a {
-	color: var(--color-theme-1);
-	text-decoration: none;
-}
-
-a:hover {
-	text-decoration: underline;
-}
-
 h1 {
 	font-size: 2rem;
 	text-align: center;
@@ -48,32 +28,48 @@ h1 {
 }
 
 h2 {
-	font-size: 1rem;
+	font-size: 1.25rem;
 }
 
-pre {
-	font-size: 16px;
-	font-family: var(--font-mono);
-	background-color: rgba(255, 255, 255, 0.45);
-	border-radius: 3px;
-	box-shadow: 2px 2px 6px rgb(255 255 255 / 25%);
-	padding: 0.5em;
-	overflow-x: auto;
-	color: var(--color-text);
+h3 {
+	margin: 0px;
+	font-size: 1.15rem;
 }
 
-input,
 button {
-	font-size: inherit;
-	font-family: inherit;
+	color: white;
+	border: none;
+	cursor: pointer;
+	font-size: 1em;
 }
 
-button:focus:not(:focus-visible) {
-	outline: none;
+.button {
+	background-color: rgba(255, 255, 255, 0.1);
+	color: white;
+	margin: 10px;
+	border-radius: 100px;
+	padding: 0px 20px;
+	height: 50px;
 }
 
-@media (min-width: 720px) {
-	h1 {
-		font-size: 2.4rem;
-	}
+button:hover {
+	text-decoration: underline;
+}
+
+.button.bare {
+	background: none;
+	opacity: 90%;
+	padding: 5px;
+}
+
+.button.dangerous {
+	background-color: darkred;
+}
+
+.row {
+	display: flex;
+}
+
+.flex {
+	flex: 1;
 }

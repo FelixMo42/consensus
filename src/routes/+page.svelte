@@ -1,3 +1,8 @@
+<svelte:head>
+	<title>Sci-Con</title>
+	<meta name="description" content="sci-con" />
+</svelte:head>
+
 <script lang="ts">
 	import { page } from "$app/stores";
     import QuestionsView from "../parts/QuestionsView.svelte";
@@ -6,18 +11,13 @@
 	const isAuth = dev ? true : $page.data.session
 </script>
 
-<svelte:head>
-	<title>Sci-Con</title>
-	<meta name="description" content="sci-con" />
-</svelte:head>
-
 <section class="main">
 	<h1>Scientific Consensus</h1>
 
 	{#if !isAuth}
-		<form method="POST" action="/signin" class="signInForm">
+		<form method="POST" action="/signin" class="authForm">
 			<input type="hidden" name="providerId" value="orcid" />
-			<button class="signInButton">
+			<button class="authButton">
 				<img
 					src="https://orcid.org/sites/default/files/images/orcid_24x24.png"
 					alt="ORCID logo"
@@ -28,9 +28,9 @@
 	{:else}
 		<QuestionsView></QuestionsView>	
 
-		<form method="POST" action="/signout" class="signInForm">
+		<form method="POST" action="/signout" class="authForm">
 			<input type="hidden" name="providerId" value="orcid" />
-			<button class="signInButton">
+			<button class="authButton">
 				Sign out
 			</button>
 		</form>
@@ -38,19 +38,23 @@
 </section>
 
 <style>
-	.signInButton {
+	.authButton {
 		display: flex;
 		border: 1px solid gray;
 		margin: auto;
+		background: none;
 		border-radius: 5px;
 		padding: 10px 40px;
 		align-items: center;
-		font-size: large;
 		margin-top: 20px;
 		cursor: pointer;
 	}
 
-	.signInButton img {
+	.authButton img {
 		margin-right: 10px;
 	}	
+
+	.authButton:hover {
+		text-decoration: none;
+	}
 </style>

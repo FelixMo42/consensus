@@ -9,14 +9,12 @@ export async function GET({ locals }: ServerLoadEvent) {
 
 export async function POST({ request, locals }: ServerLoadEvent) {
     const userId = await getUserId(locals)
+    const { question } = await request.json()
+    const id = getNewId("Q")
 
     if (!userId) return fail(401) 
 
     const client = await getRedisClient()
-
-    const { question } = await request.json()
-    const id = getNewId("Q")
     await client.set(`question:${id}`, question)
-
-    return json({ id });
+    return json(await questions(client, userId));
 }
