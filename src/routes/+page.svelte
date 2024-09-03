@@ -13,6 +13,8 @@
 		userId = localStorage.getItem("user") || "";
 		questions = await getQuestions();
 	});
+
+	$: console.log(page)
 </script>
 
 <svelte:head>
