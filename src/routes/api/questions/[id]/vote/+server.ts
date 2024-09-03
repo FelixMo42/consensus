@@ -10,5 +10,5 @@ export async function POST({ params, request, locals }: ServerLoadEvent) {
 
     const client = await getRedisClient()
     await client.set(`vote:${questionId}:${userId}`, vote)
-    return json(await questions(client))
+    return json(await questions(client, userId))
 }

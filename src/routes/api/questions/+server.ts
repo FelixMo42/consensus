@@ -1,15 +1,16 @@
 import { fail, json, type ServerLoadEvent } from '@sveltejs/kit';
-import { getRedisClient, questions, getNewId } from '$lib/db';
+import { getRedisClient, questions, getNewId, getUserId } from '$lib/db';
 
-export async function GET() {
+export async function GET({ locals }: ServerLoadEvent) {
     const client = await getRedisClient();
-    return json(await questions(client));
+    const userId = await getUserId(locals);
+    return json(await questions(client, userId));
 }
 
 export async function POST({ request, locals }: ServerLoadEvent) {
-    const session = await locals.auth()
+    const userId = await getUserId(locals)
 
-    if (!session?.user?.email) return fail(401) 
+    if (!userId) return fail(401) 
 
     const client = await getRedisClient()
 

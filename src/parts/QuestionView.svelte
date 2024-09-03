@@ -5,9 +5,7 @@
     export let question: Question;
 
 	const dispatch = createEventDispatcher<{
-		"vote": {
-			vote: string
-		}
+		vote: { vote: string }
 	}>()
 
 	const votes = ["yes", "no", "open", "vague"] as const
@@ -23,8 +21,6 @@
 	function numVotes(vote: string) {
 		return question.votes[vote]
 	}
-
-	let myVote = ""
 
 	const voteButtons = [
 		{
@@ -73,7 +69,10 @@
 		<span>My vote:</span>
 		{#each voteButtons as button}
 			<button
-				class="{button.classes} {myVote === button.vote ? "my-vote" : ""}"
+				class="
+					{button.classes}
+					{question.myVote === button.vote ? "my-vote" : ""}
+				"
 				on:click={vote(button.vote)}
 			>{button.text}</button>
 		{/each}

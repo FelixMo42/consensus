@@ -1,6 +1,7 @@
 import { REDIS_URL } from '$env/static/private';
 import { createClient, type RedisClientType } from 'redis';
 import { dev } from '$app/environment';
+import type { Question } from './types';
 
 const client: {
     client?: RedisClientType
@@ -23,7 +24,11 @@ export async function getRedisClient(): Promise<RedisClientType> {
     return client.client!
 }
 
-export async function list<T>(client: RedisClientType, query: string, cb: (id: string, val: string) => T): Promise<T[]> {
+export async function list<T>(
+    client: RedisClientType,
+    query: string,
+    cb: (id: string, val: string) => Promise<T>
+): Promise<T[]> {
     const keys = await client.keys(query) as unknown as string[];
 
     return Promise.all(keys.map(async (key) => cb(
@@ -42,11 +47,12 @@ async function calcVotes(client: RedisClientType, qId: string) {
     return votes
 }
 
-export function questions(client: RedisClientType) {
-    return list(client, 'question:*', async (id, question) => ({
+export function questions(client: RedisClientType, userId?: string) {
+    return list<Question>(client, 'question:*', async (id, question) => ({
         id,
         question,
-        votes: await calcVotes(client, id)
+        votes: await calcVotes(client, id),
+        myVote: await client.get(`vote:${id}:${userId}`)
     }))
 }
 
