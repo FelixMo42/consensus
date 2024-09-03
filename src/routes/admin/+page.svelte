@@ -20,13 +20,21 @@
 
 	{#each users as user}
 		<div class="row">
-			<h2 class="flex">{user.firstName} {user.lastName} (<a href="https://orcid.org/{user.id}">{user.id}</a>)</h2>
+			<h2 class="flex">
+				{user.firstName}
+				{user.lastName}
+				(<a href="https://orcid.org/{user.id}">{user.id}</a>)
+			</h2>
 		
 			{#if user.role === "pending"}
 				<button
 					class="button"
+					on:click={() => setUserRole(user.id, "denied")}
+				>Deny</button>
+				<button
+					class="button"
 					on:click={() => setUserRole(user.id, "expert")}
-				>Verify</button>
+				>Approve</button>
 			{/if}
 
 			{#if user.role !== "admin"}

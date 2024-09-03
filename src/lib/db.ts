@@ -4,34 +4,11 @@ import { dev } from '$app/environment'
 import type { Question } from './types'
 import { error } from '@sveltejs/kit'
 
+/** Shared **/
+
 const client: {
     client?: RedisClientType
 } = {}
-
-interface UserIdOptions {
-    admin?: boolean
-}
-
-export async function getUserId(
-    client: RedisClientType,
-    locals: App.Locals,
-    options: UserIdOptions = {},
-): Promise<string | undefined> {
-    if (dev) return "0009-0005-9178-8538"
-
-    const session = await locals.auth()
-    const id = session?.user?.email ?? undefined
-
-    if (!id) throw error(401)
-
-    if (options.admin) {
-        if (!await isAdmin(client, id)) {
-            throw error(403)
-        }
-    }
-
-    return id
-}
 
 export async function getRedisClient(): Promise<RedisClientType> {
     if (!client.client) {
@@ -56,40 +33,12 @@ export async function list<T>(
     )))
 }
 
-async function calcVotes(client: RedisClientType, qId: string) {
-    const votes: { [key: string]: number } = {}
-
-    await list(client, `vote:${qId}:*`, async (userId, vote) => {
-        votes[vote] = 1 + (votes[vote] ?? 0)
-    })
-
-    return votes
-}
-
-export function questions(client: RedisClientType, userId?: string) {
-    return list<Question>(client, 'question:*', async (id, question) => ({
-        id,
-        question,
-        votes: await calcVotes(client, id),
-        myVote: await client.get(`vote:${id}:${userId}`)
-    }))
-}
-
-export function users(client: RedisClientType) {
-    return list(client, "user:user:*", async (id, name) => {
-        const raw = JSON.parse(name)
-
-        return {
-            id: raw.email,
-            firstName: raw.givenName,
-            lastName: raw.familyName,
-            role: await client.get(`user:role:${raw.email}`) ?? 'pending'
-        }
-    })
-}
-
 export function getNewId(pre = "") {
-    const alphabet = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+    const alphabet = [
+        "0123456789",
+        "abcdefghijklmnopqrstuvwxyz",
+        "ABCDEFGHIJKLMNOPQRSTUVWXYZ",
+    ].join("")
 
     let num = Date.now()
     let id = ""
@@ -103,6 +52,72 @@ export function getNewId(pre = "") {
     return pre + id
 }
 
-export async function isAdmin(client: RedisClientType, userId: string) {
-    return await client.get(`user:role:${userId}`) === "admin"
+/** User **/
+
+export function users(client: RedisClientType) {
+    return list(client, "user:user:*", async (_id, name) => {
+        const raw = JSON.parse(name)
+
+        return {
+            id: raw.email,
+            firstName: raw.givenName,
+            lastName: raw.familyName,
+            role: await getUserRole(client, raw.email)
+        }
+    })
+}
+
+export async function getUserId(
+    client: RedisClientType,
+    locals: App.Locals,
+    options: {
+        admin?: boolean
+    } = {},
+): Promise<string | undefined> {
+    // Dev mode!!!! (that's me!)
+    if (dev) return "0009-0005-9178-8538"
+
+    // Get the id from auth state 
+    const session = await locals.auth()
+    const id = session?.user?.email ?? undefined
+
+    // If no id, then we have a problem
+    if (!id) throw error(401)
+
+    // Is this admin only?
+    if (options.admin) {
+        if (await getUserRole(client, id) !== "admin") {
+            throw error(403)
+        }
+    }
+
+    // Return
+    return id
+}
+
+export function getUserRole(client: RedisClientType, id: string) {
+    return client.get(`user:role:${id}`) ?? 'pending' 
+}
+
+/** Questions **/
+
+export function questions(client: RedisClientType, userId?: string) {
+    return list<Question>(client, 'question:*', async (id, question) => ({
+        id,
+        question,
+        votes: await calcVotes(client, id),
+        myVote: await client.get(`vote:${id}:${userId}`)
+    }))
+}
+
+async function calcVotes(client: RedisClientType, qId: string) {
+    const votes: { [key: string]: number } = {}
+
+    await list(client, `vote:${qId}:*`, async (userId, vote) => {
+        if (["admin", "expert"].includes(await getUserRole(client, userId))) {
+            votes[vote] = 1 + (votes[vote] ?? 0)
+        }
+    })
+
+    return votes
 }

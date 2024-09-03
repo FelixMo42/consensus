@@ -108,6 +108,8 @@
 		padding: 0px;
 	}
 
+	/* Vote bar */
+	
 	.bar {
 		display: flex;
 		padding: 5px;
@@ -115,8 +117,6 @@
 		justify-content: center;
 	}
 
-	/* Vote bar */
-	
 	.bar:first-child {
 		border-top-left-radius: 20px;
 		border-bottom-left-radius: 20px;
