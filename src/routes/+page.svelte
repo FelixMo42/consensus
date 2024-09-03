@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { SignIn, SignOut } from "@auth/sveltekit/components";
 	import { page } from "$app/stores";
 	import {
 		addQuestion,
@@ -11,6 +10,8 @@
 	import type { Question } from "$lib/types";
 
 	let questions: Question[] = [];
+
+	$: console.log(questions)
 
 	onMount(async () => {
 		questions = await getQuestions();
@@ -62,6 +63,7 @@
 		align-items: center;
 		font-size: large;
 		margin-top: 20px;
+		cursor: pointer;
 	}
 
 	.signInButton img {
