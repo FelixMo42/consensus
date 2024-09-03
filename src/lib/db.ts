@@ -9,7 +9,7 @@ export async function getRedisClient(): Promise<RedisClientType> {
     if (!client.client) {
         client.client = await createClient({
             url: REDIS_URL
-        }).connect();
+        }).connect() as RedisClientType;
     }
 
     return client.client!
@@ -43,3 +43,17 @@ export function questions(client: RedisClientType) {
 }
 
 
+export function getNewId(pre = "") {
+    const alphabet = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+
+    let num = Date.now()
+    let id = ""
+
+    while (num > 0) {
+        const q = num % alphabet.length
+        num = (num - q) / alphabet.length
+        id += alphabet[q]
+    }
+
+    return pre + id
+}

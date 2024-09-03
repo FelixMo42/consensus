@@ -1,20 +1,20 @@
 <script lang="ts">
 	import { SignIn, SignOut } from "@auth/sveltekit/components";
 	import { page } from "$app/stores";
-	import { addQuestion, getQuestions, getUserInfo, submitVote } from "$lib/lib";
+	import {
+		addQuestion,
+		getQuestions,
+		submitVote,
+	} from "$lib/api";
 	import { onMount } from "svelte";
 	import QuestionEl from "../QuestionEl.svelte";
 	import type { Question } from "$lib/types";
 
-	let userId = "";
 	let questions: Question[] = [];
 
 	onMount(async () => {
-		userId = localStorage.getItem("user") || "";
 		questions = await getQuestions();
 	});
-
-	page.subscribe(console.log)
 </script>
 
 <svelte:head>
@@ -22,39 +22,52 @@
 	<meta name="description" content="sci-con" />
 </svelte:head>
 
-{#if $page.data.session}
-	<span class="signedInText">Signed in!</span>
-	<button on:click={async () => {
-		const info = await getUserInfo()
-		console.log(info)
-	}}>get my info</button>
-	{JSON.stringify(page)}
-	<SignOut>
-		<div slot="submitButton" class="buttonPrimary">Sign out</div>
-	</SignOut>
-{:else}
-	<span class="notSignedInText">You are not signed in</span>
-	<SignIn provider="orcid" />
-{/if}
-
 <section>
 	<h1>Scientific Consensus</h1>
-	{#each questions as question}
-		<QuestionEl
-			{question}
-			on:vote={async (e) => {
-				questions = await submitVote({
-					userId,
-					qId: question.id,
-					vote: e.detail.vote,
-				});
-			}}
-		/>
-	{/each}
-	<button class="add" on:click={addQuestion}>+ add question</button>
+
+	{#if !$page.data.session}
+		<form method="POST" action="/signin" class="signInForm">
+			<input type="hidden" name="providerId" value="orcid" />
+			<button class="signInButton">
+				<img
+					src="https://orcid.org/sites/default/files/images/orcid_24x24.png"
+					alt="ORCID logo"
+				/>
+				Sign in with ORCID
+			</button>
+		</form>
+	{:else}
+		{#each questions as question}
+			<QuestionEl
+				{question}
+				on:vote={async (e) => {
+					questions = await submitVote({
+						qId: question.id,
+						vote: e.detail.vote,
+					});
+				}}
+			/>
+		{/each}
+		<button class="add" on:click={addQuestion}>+ add question</button>
+	{/if}
 </section>
 
 <style>
+	.signInButton {
+		display: flex;
+		border: 1px solid gray;
+		margin: auto;
+		border-radius: 5px;
+		padding: 10px 40px;
+		align-items: center;
+		font-size: large;
+		margin-top: 20px;
+	}
+
+	.signInButton img {
+		margin-right: 10px;
+	}
+
 	h1 {
 		text-decoration: underline;
 		margin-bottom: 0px;
