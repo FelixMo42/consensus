@@ -1,4 +1,4 @@
-import { getRedisClient } from "$lib/db"
+import { redis } from "$lib/db"
 import {
     type Adapter,
     type AdapterUser,
@@ -24,13 +24,11 @@ export function hydrate(json: string) {
 
 export function RedisAdapter(): Adapter {
     const setObjectAsJson = async (key: string, obj: any) => {
-        const client = await getRedisClient()
-        return client.set(key, JSON.stringify(obj))
+        return redis.set(key, JSON.stringify(obj))
     }
 
     const get = async (key: string) => {
-        const client = await getRedisClient()
-        const raw = await client.get(key) as string
+        const raw = await redis.get(key) as string
 
         if (typeof raw === "string" && raw.startsWith("{")) {
             return hydrate(raw)
@@ -40,10 +38,9 @@ export function RedisAdapter(): Adapter {
     }
 
     const setAccount = async (id: string, account: AdapterAccount) => {
-        const client = await getRedisClient()
         const accountKey = accountKeyPrefix + id
         await setObjectAsJson(accountKey, account)
-        await client.set(accountByUserIdPrefix + account.userId, accountKey)
+        await redis.set(accountByUserIdPrefix + account.userId, accountKey)
         return account
     }
 
@@ -55,10 +52,9 @@ export function RedisAdapter(): Adapter {
         id: string,
         session: AdapterSession
     ): Promise<AdapterSession> => {
-        const client = await getRedisClient()
         const sessionKey = sessionKeyPrefix + id
         await setObjectAsJson(sessionKey, session)
-        await client.set(sessionByUserIdKeyPrefix + session.userId, sessionKey)
+        await redis.set(sessionByUserIdKeyPrefix + session.userId, sessionKey)
         return session
     }
 
@@ -70,9 +66,8 @@ export function RedisAdapter(): Adapter {
         id: string,
         user: AdapterUser
     ): Promise<AdapterUser> => {
-        const client = await getRedisClient()
         await setObjectAsJson(userKeyPrefix + id, user)
-        await client.set(`${orcidKeyPrefix}${user.email}`, id)
+        await redis.set(`${orcidKeyPrefix}${user.email}`, id)
         return user
     }
 
@@ -89,8 +84,7 @@ export function RedisAdapter(): Adapter {
         },
         getUser,
         async getUserByEmail(email) {
-            const client = await getRedisClient()
-            const userId = await client.get(orcidKeyPrefix + email)
+            const userId = await redis.get(orcidKeyPrefix + email)
             if (!userId) return null
             return await getUser(userId)
         },
@@ -124,8 +118,7 @@ export function RedisAdapter(): Adapter {
             return await setSession(updates.sessionToken, { ...session, ...updates })
         },
         async deleteSession(sessionToken) {
-            const client = await getRedisClient()
-            await client.del(sessionKeyPrefix + sessionToken)
+            await redis.del(sessionKeyPrefix + sessionToken)
         },
         async createVerificationToken(verificationToken) {
             await setObjectAsJson(
@@ -138,8 +131,6 @@ export function RedisAdapter(): Adapter {
             return verificationToken
         },
         async useVerificationToken(verificationToken) {
-            const client = await getRedisClient()
-
             const tokenKey =
                 verificationTokenKeyPrefix +
                 verificationToken.identifier +
@@ -147,31 +138,28 @@ export function RedisAdapter(): Adapter {
                 verificationToken.token
 
             const token = await get(tokenKey)
-            await client.del(tokenKey)
+            await redis.del(tokenKey)
 
             return token
         },
         async unlinkAccount(account) {
-            const client = await getRedisClient()
-
             const id = `${account.provider}:${account.providerAccountId}`
             const dbAccount = await getAccount(id)
             if (!dbAccount) return
             const accountKey = `${accountKeyPrefix}${id}`
-            await client.del([
+            await redis.del([
                 accountKey,
                 `${accountByUserIdPrefix} + ${dbAccount.userId as string}`
             ])
         },
         async deleteUser(userId) {
-            const client = await getRedisClient()
             const user = await getUser(userId)
             if (!user) return
             const accountByUserKey = accountByUserIdPrefix + userId
-            const accountKey = await client.get(accountByUserKey)
+            const accountKey = await redis.get(accountByUserKey)
             const sessionByUserIdKey = sessionByUserIdKeyPrefix + userId
-            const sessionKey = await client.get(sessionByUserIdKey)
-            await client.del([
+            const sessionKey = await redis.get(sessionByUserIdKey)
+            await redis.del([
                 userKeyPrefix + userId,
                 accountKey as string,
                 `${orcidKeyPrefix}${user.email as string}`,
