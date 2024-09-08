@@ -42,7 +42,7 @@ export function getNewId(pre = "") {
 /** User **/
 
 export function users() {
-    return list("user:user:*", async (_id, name) => {
+    return list("user:data:*", async (_id, name) => {
         const raw = JSON.parse(name)
 
         return {
