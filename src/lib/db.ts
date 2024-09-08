@@ -82,7 +82,7 @@ export async function getUserId(
 }
 
 export async function getUserRole(id: string) {
-    return await redis.get(`user:role:${id}`) ?? 'pending'
+    return (await redis.get(`user:role:${id}`)) ?? 'pending'
 }
 
 /** Questions **/
